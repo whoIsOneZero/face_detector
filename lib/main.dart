@@ -20,7 +20,6 @@ class MyApp extends StatefulWidget {
 
 class _MyAppState extends State<MyApp> {
   File? _capturedImage;
-
   late FaceCameraController controller;
 
   @override
@@ -32,7 +31,7 @@ class _MyAppState extends State<MyApp> {
         setState(() => _capturedImage = image);
       },
       onFaceDetected: (Face? face) {
-         // Debugging: print face detection details
+        // Debugging: print face detection details
         if (kDebugMode) {
           print("Face detected: ${face != null}");
         }
@@ -81,17 +80,31 @@ class _MyAppState extends State<MyApp> {
                 ),
               );
             }
-            return SmartFaceCamera(
-                controller: controller,
-                messageBuilder: (context, face) {
-                  if (face == null) {
-                    return _message('Place your face in the camera');
-                  }
-                  if (!face.wellPositioned) {
-                    return _message('Center your face in the square');
-                  }
-                  return const SizedBox.shrink();
-                });
+            return Stack(children: [
+              SmartFaceCamera(
+                  controller: controller,
+                  indicatorShape: IndicatorShape.square,
+                   /*indicatorBuilder: (context, face, size) {
+                  // Optional: Customize the face indicator
+                       return CustomPaint(
+                    painter: FacePainter(
+                      face: face.face,
+                      indicatorShape: IndicatorShape.square, // Or other shapes
+                      imageSize: size,
+                    ),
+                  );
+                },*/
+                  messageBuilder: (context, face) {
+                    if (face == null) {
+                      return _message('Place your face in the camera');
+                    }
+                    if (!face.wellPositioned) {
+                      return _message('Center your face in the square');
+                    }
+                    return const SizedBox.shrink();
+                  }),
+                  //_faceOverlay(),
+            ]);
           })),
     );
   }
@@ -102,6 +115,20 @@ class _MyAppState extends State<MyApp> {
             textAlign: TextAlign.center,
             style: const TextStyle(
                 fontSize: 14, height: 1.5, fontWeight: FontWeight.w400)),
+      );
+
+  Widget _faceOverlay() => Positioned.fill(
+        child: Align(
+          alignment: Alignment.center,
+          child: Container(
+            width: 300,
+            height: 300,
+            decoration: BoxDecoration(
+              border: Border.all(color: Colors.red, width: 3),
+              borderRadius: BorderRadius.circular(10),
+            ),
+          ),
+        ),
       );
 
   @override
